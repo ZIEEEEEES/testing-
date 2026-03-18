@@ -2430,6 +2430,27 @@ h1 {
     grid-template-columns: 1fr !important;
   }
 
+  /* Bottom nav: prevent jumbled/overlapping labels on tiny screens */
+  .sidebar-nav {
+    height: 64px !important;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-btn {
+    gap: 0 !important;
+    padding: 0 !important;
+    min-width: 0 !important;
+  }
+
+  .nav-icon {
+    font-size: 22px !important;
+    line-height: 1 !important;
+  }
+
+  .nav-label {
+    display: none !important;
+  }
+
   .order-drawer-btn {
     right: 12px !important;
   }
