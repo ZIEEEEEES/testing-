@@ -2094,7 +2094,7 @@ h1 {
 @media (max-width: 1024px) {
   body {
     margin-left: 0 !important;
-    padding: 10px 10px 120px 10px !important;
+    padding: 10px 10px 160px 10px !important; /* Keep space for bottom nav + guest banner */
     display: block !important;
   }
 
@@ -2141,7 +2141,7 @@ h1 {
 
   .page {
     margin-left: 0 !important;
-    padding: 20px !important;
+    padding: 20px 20px 140px 20px !important; /* Leave room for bottom nav */
     max-width: 100% !important;
     width: 100% !important;
     border-radius: 0 !important;
@@ -2182,56 +2182,34 @@ h1 {
     gap: 15px !important;
   }
 
+  /* Extra small screens */
+  @media (max-width: 360px) {
+    .menu-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+
+    .page {
+      padding: 18px 12px 140px 12px !important;
+    }
+  }
+
   .track-section {
-    overflow-x: visible !important;
+    overflow-x: auto !important;
     margin-bottom: 20px !important;
   }
 
   .track-table {
-    min-width: 0 !important;
-    display: block;
+    min-width: 720px !important;
   }
 
   .track-table thead {
-    display: none; /* Hide headers on mobile stack */
+    background: rgba(0,0,0,0.02);
   }
 
-  .track-table tbody, .track-table tr, .track-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .track-table tr {
-    margin-bottom: 15px;
-    background: white;
-    border-radius: 16px;
-    padding: 15px;
-    border: 1px solid var(--border-light);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  }
-
+  .track-table th,
   .track-table td {
-    padding: 8px 0 !important;
-    border: none !important;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px !important;
-    transform: none !important;
-    box-shadow: none !important;
-  }
-
-  .track-table td:before {
-    content: attr(data-label);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 10px;
-    color: var(--text-light);
-    letter-spacing: 0.5px;
-  }
-
-  .track-table td:first-child, .track-table td:last-child {
-    border-radius: 0 !important;
+    padding: 12px 14px !important;
   }
 
   .auth-modal-content {
