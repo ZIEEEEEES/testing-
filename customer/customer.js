@@ -451,8 +451,7 @@ function updateCustomerBell(count) {
   lastBellCount = total
   isInitialBellLoad = false
 
-  badge.textContent = String(total)
-  badge.style.display = total > 0 ? "inline-flex" : "none"
+  badge.style.display = total > 0 ? "inline-block" : "none"
   bell.style.display = currentCustomer ? "flex" : "none"
 }
 

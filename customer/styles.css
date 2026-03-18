@@ -40,15 +40,14 @@ body {
 .customer-bell .bell-badge {
   background: #e53935;
   color: white;
-  min-width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 0 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: 1px solid white;
 }
 
 .notification-list {
