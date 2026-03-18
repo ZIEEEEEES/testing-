@@ -1753,15 +1753,17 @@ window.updateKioskStatus = async (orderId, status, btn = null) => {
   try {
       const { data: orderData } = await getDB().from("pending_orders").select("*").eq("id", orderId).single()
       
-      const updatePayload = { status }
-      if (["completed", "REJECTED", "rejected", "cancelled"].includes(status)) {
+      // Normalize status casing to avoid DB check/enums rejecting uppercase values.
+      const normalizedStatus = String(status || "").toLowerCase()
+      const updatePayload = { status: normalizedStatus }
+      if (["completed", "rejected", "cancelled"].includes(normalizedStatus)) {
           updatePayload.archived = true
           updatePayload.archived_at = new Date().toISOString()
       }
 
       // Handle ACCEPTED status
-      if (status === 'ACCEPTED') {
-          updatePayload.status = 'ACCEPTED';
+      if (normalizedStatus === 'accepted') {
+          updatePayload.status = 'accepted'
           // Notify customer
           await upsertCustomerNotification({
               customerId: orderData.customer_id,
@@ -1777,8 +1779,8 @@ window.updateKioskStatus = async (orderId, status, btn = null) => {
       }
 
       // Handle REJECTED status
-      if (status === 'REJECTED') {
-          updatePayload.status = 'REJECTED';
+      if (normalizedStatus === 'rejected') {
+          updatePayload.status = 'rejected'
           // Notify customer
           await upsertCustomerNotification({
               customerId: orderData.customer_id,
@@ -1789,7 +1791,7 @@ window.updateKioskStatus = async (orderId, status, btn = null) => {
       }
 
       // AUTO-CONFIRM SECOND PAYMENT IF ACCEPTING (Legacy support for 'preparing')
-      if ((status === 'ACCEPTED' || status === 'preparing') && orderData && orderData.second_payment_status === 'pending_verification') {
+      if ((normalizedStatus === 'accepted' || normalizedStatus === 'preparing') && orderData && orderData.second_payment_status === 'pending_verification') {
           updatePayload.insufficient_payment = false
           updatePayload.insufficient_amount_needed = 0
           updatePayload.second_payment_status = "verified"
@@ -1804,12 +1806,12 @@ window.updateKioskStatus = async (orderId, status, btn = null) => {
       }
 
       // NEW: Record online kiosk orders in sales when accepted (status moving to preparing)
-      if (status === 'preparing' && orderData && orderData.payment_method === 'online' && orderData.status === 'pending') {
+      if (normalizedStatus === 'preparing' && orderData && orderData.payment_method === 'online' && orderData.status === 'pending') {
           console.log("[System Log] Recording Online Kiosk Order in Sales (Accepted):", orderId)
           await recordKioskSale(orderData)
       }
 
-      if (status === 'completed') {
+      if (normalizedStatus === 'completed') {
           // Fetch order details
           const data = orderData; // Reuse fetched data
           if (!data) throw new Error("Order not found")
@@ -2811,16 +2813,18 @@ window.updatePreorderStatus = async (id, status, btn = null) => {
         const { data: bookingData, error: fetchErr } = await dbRef.from("bookings").select("*").eq("id", id).single()
         if (fetchErr || !bookingData) throw fetchErr || new Error("Booking not found")
 
-        const finalStatus = status
+        // Normalize status casing to avoid DB check/enums rejecting uppercase values.
+        const normalizedStatus = String(status || "").toLowerCase()
+        const finalStatus = normalizedStatus
         const payload = { status: finalStatus }
-        if (["completed", "REJECTED", "rejected", "cancelled"].includes(status)) {
+        if (["completed", "rejected", "cancelled"].includes(normalizedStatus)) {
             payload.archived = true
             payload.archived_at = new Date().toISOString()
         }
 
         // Handle ACCEPTED status
-        if (status === 'ACCEPTED' || status === 'accepted') {
-            payload.status = 'ACCEPTED';
+        if (normalizedStatus === 'accepted') {
+            payload.status = 'accepted'
             // Notify customer
             await upsertCustomerNotification({
                 customerId: bookingData.customer_id,
@@ -2836,8 +2840,8 @@ window.updatePreorderStatus = async (id, status, btn = null) => {
         }
 
         // Handle REJECTED status
-        if (status === 'REJECTED' || status === 'rejected') {
-            payload.status = 'REJECTED';
+        if (normalizedStatus === 'rejected') {
+            payload.status = 'rejected'
             // Notify customer
             await upsertCustomerNotification({
                 customerId: bookingData.customer_id,
@@ -2848,7 +2852,7 @@ window.updatePreorderStatus = async (id, status, btn = null) => {
         }
 
         // AUTO-CONFIRM SECOND PAYMENT IF ACCEPTING
-        if ((status === 'ACCEPTED' || status === 'accepted') && bookingData.second_payment_status === 'pending_verification') {
+        if (normalizedStatus === 'accepted' && bookingData.second_payment_status === 'pending_verification') {
             payload.insufficient_payment = false
             payload.insufficient_amount_needed = 0
             payload.second_payment_status = "verified"
@@ -2878,7 +2882,7 @@ window.updatePreorderStatus = async (id, status, btn = null) => {
         // Snappy UI reload
         window.loadPreorders()
         
-        if (status === 'completed') {
+        if (normalizedStatus === 'completed') {
             showMessage("Order Completed!", "success")
         } else {
             showMessage(`Order ${status.toUpperCase()}!`, "success")
