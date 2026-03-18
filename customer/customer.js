@@ -3984,7 +3984,7 @@ async function runTrackOrder() {
             return tb - ta
         })
 
-      const renderOrderRow = (d) => {
+      const renderOrderRow = (d, isHistory = false) => {
             let items = d.items
             if (typeof items === 'string') {
                 try { items = JSON.parse(items) } catch(e) { items = [] }
@@ -4095,10 +4095,10 @@ async function runTrackOrder() {
             }
 
             tr.innerHTML = `
-              <td>${itemContent}</td>
-              <td style="font-weight:800; color:var(--coffee-dark); font-size:16px;">\u20B1${Number(orderTotal).toFixed(2)}</td>
-              <td><span class="${badgeClass}" style="${badgeStyle}">${displayStatus}</span>${confirmationNotice}${insufficientPaymentWarning}</td>
-              <td style="color:#888; font-size:13px;">${ts}</td>
+              <td data-label="Items">${itemContent}</td>
+              <td data-label="Total" style="font-weight:800; color:var(--coffee-dark); font-size:16px;">\u20B1${Number(orderTotal).toFixed(2)}</td>
+              <td data-label="Status"><span class="${badgeClass}" style="${badgeStyle}">${displayStatus}</span>${confirmationNotice}${insufficientPaymentWarning}</td>
+              <td data-label="${isHistory ? 'Date' : 'Placed At'}" style="color:#888; font-size:13px;">${ts}</td>
             `
             return tr
       }
@@ -4109,7 +4109,7 @@ async function runTrackOrder() {
         if (activeOrders.length === 0) {
           orderBody.innerHTML = '<tr><td colspan="4" style="text-align:center">No active orders</td></tr>'
         } else {
-          activeOrders.forEach(d => orderBody.appendChild(renderOrderRow(d)))
+          activeOrders.forEach(d => orderBody.appendChild(renderOrderRow(d, false)))
         }
       }
 
@@ -4119,7 +4119,7 @@ async function runTrackOrder() {
         if (historyOrders.length === 0) {
           historyBody.innerHTML = '<tr><td colspan="4" style="text-align:center">No order history</td></tr>'
         } else {
-          historyOrders.forEach(d => historyBody.appendChild(renderOrderRow(d)))
+          historyOrders.forEach(d => historyBody.appendChild(renderOrderRow(d, true)))
         }
       }
 
@@ -4246,12 +4246,12 @@ async function runTrackOrder() {
               `<div style="font-weight:800;color:#2196F3;text-transform:uppercase;font-size:10px;letter-spacing:1px;margin-bottom:4px;">${type}</div>`
 
             tr.innerHTML = `
-              <td>${typeLabel}</td>
-              <td style="font-weight:700; color:var(--coffee-dark);">${date}</td>
-              <td style="font-weight:700; color:var(--coffee-dark);">${time}</td>
-              <td><span class="${badgeClass}" style="${badgeStyle}">${displayStatus}</span>${rescheduleNotice}</td>
-              <td style="font-size:13px; color:#666;">${reasonDisplay}</td>
-              <td style="font-size:12px; color:#888;">${ts}</td>
+              <td data-label="Type">${typeLabel}</td>
+              <td data-label="Date" style="font-weight:700; color:var(--coffee-dark);">${date}</td>
+              <td data-label="Time" style="font-weight:700; color:var(--coffee-dark);">${time}</td>
+              <td data-label="Status"><span class="${badgeClass}" style="${badgeStyle}">${displayStatus}</span>${rescheduleNotice}</td>
+              <td data-label="Reason" style="font-size:13px; color:#666;">${reasonDisplay}</td>
+              <td data-label="Placed At" style="font-size:12px; color:#888;">${ts}</td>
             `
             bookingBody.appendChild(tr)
           })

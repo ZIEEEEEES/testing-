@@ -2094,7 +2094,7 @@ h1 {
 @media (max-width: 1024px) {
   body {
     margin-left: 0 !important;
-    padding: 10px 10px 100px 10px !important;
+    padding: 10px 10px 120px 10px !important;
     display: block !important;
   }
 
@@ -2183,12 +2183,55 @@ h1 {
   }
 
   .track-section {
-    overflow-x: auto !important;
+    overflow-x: visible !important;
     margin-bottom: 20px !important;
   }
 
   .track-table {
-    min-width: 600px !important;
+    min-width: 0 !important;
+    display: block;
+  }
+
+  .track-table thead {
+    display: none; /* Hide headers on mobile stack */
+  }
+
+  .track-table tbody, .track-table tr, .track-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .track-table tr {
+    margin-bottom: 15px;
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+
+  .track-table td {
+    padding: 8px 0 !important;
+    border: none !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .track-table td:before {
+    content: attr(data-label);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+  }
+
+  .track-table td:first-child, .track-table td:last-child {
+    border-radius: 0 !important;
   }
 
   .auth-modal-content {
@@ -2216,44 +2259,78 @@ h1 {
 
   /* Wheel adjustment */
   #wheelCanvas {
-    width: 260px !important;
-    height: 260px !important;
+    width: 240px !important;
+    height: 240px !important;
+  }
+
+  .wheel-categories {
+    gap: 6px !important;
+    padding: 0 10px !important;
+  }
+
+  .category-checkbox {
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .wheel-container {
+    gap: 5px !important;
+  }
+
+  .wheel-arrow {
+    top: -20px !important;
+    border-top-width: 20px !important;
+    border-left-width: 10px !important;
+    border-right-width: 10px !important;
   }
 }
 
 /* Small Mobile (480px and below) */
 @media (max-width: 480px) {
+  h2 { font-size: 20px !important; margin-bottom: 20px !important; }
+  h3 { font-size: 18px !important; margin: 20px 0 10px 0 !important; }
+  
   .menu-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
   }
 
   .menu-item {
-    flex-direction: row !important;
+    flex-direction: column !important;
     height: auto !important;
-    align-items: center !important;
-    padding: 12px !important;
+    padding: 10px !important;
   }
 
   .menu-item-image-wrapper {
-    width: 80px !important;
-    height: 80px !important;
-    flex-shrink: 0 !important;
-    border-radius: 8px !important;
+    width: 100% !important;
+    height: 120px !important;
+    border-radius: 12px !important;
   }
 
   .menu-item-content {
-    padding: 0 0 0 12px !important;
+    padding: 10px 0 0 0 !important;
   }
 
   .menu-item-name {
-    min-height: auto !important;
-    font-size: 14px !important;
-    margin-bottom: 4px !important;
+    font-size: 13px !important;
+    min-height: 36px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .size-buttons-container {
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+  }
+
+  .size-option-btn-new {
+    padding: 6px !important;
+    font-size: 10px !important;
   }
 
   .menu-item-btn {
-    padding: 6px 12px !important;
-    font-size: 12px !important;
+    padding: 8px !important;
+    font-size: 11px !important;
+    margin-top: 8px !important;
   }
 
   .category-filter {

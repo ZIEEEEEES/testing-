@@ -370,47 +370,23 @@
 
     @media (max-width: 768px) {
       body {
-        padding: 20px;
-        align-items: flex-start; /* Better for mobile scrolling */
+        padding: 10px;
+        align-items: flex-start;
       }
 
       .container {
         grid-template-columns: 1fr;
-        gap: 40px;
-      }
-
-      .left-section {
-        order: 1; /* Form first on mobile */
-      }
-
-      .right-section {
-        order: 2;
-      }
-
-      .map-container {
-        height: 350px;
-      }
-
-      .logo {
-        font-size: 36px;
-      }
-
-      .form-title {
-        font-size: 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 16px;
-      }
-
-      .container {
         gap: 24px;
+        max-width: 100%;
+      }
+
+      .brand {
+        align-items: center;
+        text-align: center;
       }
 
       .logo {
-        font-size: 28px;
+        font-size: 32px;
       }
 
       .tagline {
@@ -418,15 +394,49 @@
       }
 
       .auth-form {
-        padding: 24px;
+        padding: 24px 16px;
+        width: 100%;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
       }
 
       .map-container {
         height: 250px;
       }
+
+      .map-info {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+
+      .container {
+        gap: 20px;
+      }
+
+      .logo {
+        font-size: 28px;
+      }
+
+      .auth-form {
+        padding: 20px 12px;
+      }
+
+      .map-container {
+        height: 200px;
+      }
       
       .input-field {
-        font-size: 16px; /* Prevent zoom on iOS */
+        font-size: 16px;
+        padding: 11px 13px;
+      }
+
+      .btn {
+        padding: 12px;
+        font-size: 14px;
       }
     }
   </style>
