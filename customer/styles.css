@@ -2085,6 +2085,20 @@ h1 {
   transform: translateX(5px);
 }
 
+/* Payment option sublabel (e.g., GCash/Maya) */
+.payment-option .option-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.payment-option .option-sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: #777;
+  margin-top: 2px;
+}
+
 /* Empty State */
 .empty-cart-message {
   text-align: center;
@@ -2230,6 +2244,21 @@ h1 {
   .menu-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 15px !important;
+  }
+
+  /* Loyalty page should maximize screen space on mobile */
+  #loyalty[style*="display: block"],
+  #loyalty[style*="display:block"] {
+    padding: 16px 12px calc(140px + env(safe-area-inset-bottom)) 12px !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    min-height: auto !important;
+  }
+
+  .loyalty-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
   }
 
   /* Extra small screens */

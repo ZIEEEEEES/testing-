@@ -1448,6 +1448,9 @@ function showPage(page) {
   const pageEl = document.getElementById(page)
   if (pageEl) pageEl.style.display = "block"
 
+  // Track current page for UI guards (e.g., preorder drawer only on booking page)
+  window.__customerCurrentPage = page
+
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.classList.remove("active")
   })
@@ -1462,9 +1465,17 @@ function showPage(page) {
   // Handle Preorder Drawer Button Visibility
   if (page === "book") {
       updateBookingUI()
+      // Re-enable the preorder drawer container on booking page (toggle will handle active state)
+      const preorderDrawer = document.getElementById("preorderDrawer")
+      if (preorderDrawer) preorderDrawer.style.display = "flex"
   } else {
       const preorderDrawerBtn = document.getElementById("preorderDrawerBtn")
       if (preorderDrawerBtn) preorderDrawerBtn.style.display = "none"
+
+      // Pre-order basket should only exist on the booking page
+      const preorderDrawer = document.getElementById("preorderDrawer")
+      if (typeof closePreorderDrawer === "function") closePreorderDrawer()
+      if (preorderDrawer) preorderDrawer.style.display = "none"
   }
 
   // Automatically close cart drawers when navigating
@@ -1995,6 +2006,12 @@ function togglePreorderDrawer() {
     const btn = document.getElementById("preorderDrawerBtn")
 
     if (!drawer || !btn) return
+
+    // Guard: pre-order basket only available on Booking page
+    if (window.__customerCurrentPage && window.__customerCurrentPage !== "book") return
+
+    // Ensure drawer is available when on booking page
+    if (drawer.style.display === "none") drawer.style.display = "flex"
 
     drawer.classList.toggle("active")
     btn.classList.toggle("active")
