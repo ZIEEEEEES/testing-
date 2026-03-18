@@ -8,6 +8,7 @@ let currentPendingCustomerId = null
 let currentOrder = []
 let currentInsufficientDue = 0
 let groupedProducts = {}
+let productSearchTerm = "" // live search filter
 const categories = { 1: "Coffee", 2: "Non-coffee", 3: "Frappe", 4: "Soda", 5: "Pastries" }
 let kioskNewCount = 0
 let pastryFilter = "all"
@@ -500,6 +501,11 @@ function renderMenu(filterCat) {
       return 0
     })
     prodEntries.forEach(([prodName, sizesArr]) => {
+      // Apply text search filter
+      if (productSearchTerm) {
+        const lowerName = String(prodName || "").toLowerCase()
+        if (!lowerName.includes(productSearchTerm)) return
+      }
       if (cat === "Pastries") {
         const lower = String(prodName || "").toLowerCase()
         if (pastryFilter === "waffle" && !lower.includes("waffle")) return
@@ -690,6 +696,15 @@ function filterPastries(type, el) {
   if (container) container.querySelectorAll("button").forEach((b) => b.classList.remove("active"))
   if (el) el.classList.add("active")
   renderMenu("Pastries")
+}
+
+// Live product search for cashier menu
+function setProductSearch(query) {
+  productSearchTerm = String(query || "").trim().toLowerCase()
+  // Re-render using the currently active category
+  const activeBtn = document.querySelector(".category-filter button.active")
+  const currentCat = activeBtn ? activeBtn.textContent.trim() : "Coffee"
+  renderMenu(currentCat)
 }
 
 // Orders

@@ -60,6 +60,19 @@
       <div class="orders-layout">
         <!-- LEFT: Menu Section -->
         <div class="menu-section">
+          <!-- Product Search + Category Filter -->
+          <div class="menu-toolbar">
+            <div class="product-search">
+              <input 
+                id="cashierProductSearch"
+                type="text"
+                class="input-field"
+                placeholder="Search products..."
+                oninput="setProductSearch(this.value)"
+              >
+            </div>
+          </div>
+
           <!-- Category Filter -->
           <div class="category-filter">
             <button onclick="filterCategory('Coffee', this)" class="active">Coffee</button>

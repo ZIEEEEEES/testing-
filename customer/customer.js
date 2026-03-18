@@ -3286,6 +3286,10 @@ window.custQty = updateOrderQty
 window.custRemove = removeOrderItem
 
 function addToOrder(id, name, price, photo, temperature = null) {
+  if (isGuest) {
+    showMessage("Please sign in to place an order.", "error", "custOrderMsg")
+    return
+  }
   console.log("[v0] Adding to order:", name, price, temperature)
   const itemKey = temperature ? `${id}-${temperature}` : id
   const displayName = temperature ? `${name} (${temperature})` : name
@@ -3731,6 +3735,15 @@ window.confirmRepay = async () => {
 async function placeKioskOrder(paymentDetails = {}) {
   if (isOrderSubmitting) {
     console.warn("Order submission already in progress")
+    return
+  }
+  
+  if (isGuest) {
+    if (msg) {
+      msg.textContent = "Guest mode is view-only. Please sign in to place an order."
+      msg.className = "error"
+      setTimeout(() => (msg.textContent = ""), 2500)
+    }
     return
   }
   

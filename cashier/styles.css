@@ -80,13 +80,27 @@ body.sidebar-open .container {
   overflow-y: auto; /* Independent scroll */
 }
 
-.category-filter {
+.menu-toolbar {
   position: sticky;
   top: 0;
+  z-index: 5;
+  background: var(--cream);
+  padding: 8px 0 4px 0;
+}
+
+.product-search .input-field {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.category-filter {
+  position: sticky;
+  top: 46px; /* sits just below search bar */
   z-index: 4;
   background: var(--cream);
-  padding-top: 8px;
-  margin-top: -8px;
+  padding-top: 4px;
+  margin-top: 0;
   border-bottom: 1px solid var(--border-color);
 }
 
