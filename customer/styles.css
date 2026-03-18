@@ -2362,3 +2362,79 @@ h1 {
     font-size: 13px !important;
   }
 }
+
+/* --- Mobile compatibility hardening (prevents overflow & improves tap UX) --- */
+@media (max-width: 768px) {
+  html,
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Keep content visible above bottom nav and iOS safe-area */
+  body {
+    padding-bottom: calc(160px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* If cart drawer opens full-width, don't shove the floating button off-screen */
+  .order-drawer-btn.active {
+    right: 20px !important;
+  }
+
+  /* Better touch targets / avoid accidental zoom on iOS */
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 16px;
+  }
+
+  /* Tables: allow horizontal scroll without breaking layout */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent long strings (IDs, item lists) from forcing overflow */
+  .track-table td,
+  .track-table th,
+  #loyaltyCardDisplay,
+  .cart-item-name,
+  .cart-item-variant {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Pre-order modal footer: wrap buttons nicely on phones */
+  #preorderModal .preorder-modal-footer {
+    flex-wrap: wrap;
+    justify-content: stretch !important;
+    padding-bottom: calc(15px + env(safe-area-inset-bottom));
+  }
+
+  #preorderModal #preorderBackBtn,
+  #preorderModal #preorderCancelBtn,
+  #preorderModal #preorderNextBtn,
+  #preorderModal #preorderSubmitBtn {
+    min-width: 0 !important;
+    flex: 1 1 180px;
+    padding: 12px 14px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  /* Make 2-column menu cards less cramped on very small phones */
+  .menu-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .order-drawer-btn {
+    right: 12px !important;
+  }
+
+  .order-drawer-btn.active {
+    right: 12px !important;
+  }
+}
