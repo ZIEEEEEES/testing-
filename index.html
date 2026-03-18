@@ -509,7 +509,7 @@
       <!-- Updated map image filename to MAPToriCafe.png -->
       <a href="https://www.google.com/maps/search/?api=1&query=Tori+Cafeteria+Tubao" target="_blank" rel="noopener noreferrer" class="map-link">
       <div class="map-container">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='450'%3E%3Crect fill='%23f0e8dd' width='400' height='450'/%3E%3Ctext x='50%' y='50%' text-anchor='middle' dy='.3em' font-family='Arial' font-size='16' fill='%23999'%3ETORI Cafeteria Location%3C/text%3E%3C/svg%3E" alt="Map showing Tori Cafeteria location" id="mapImage">
+        <img src="/images/MAPToriCafe.png" alt="Map showing Tori Cafeteria location" id="mapImage">
       </div>
       </a>
       <div class="map-info">
@@ -803,17 +803,8 @@
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // Load map image
-    setTimeout(() => {
-      const mapImg = document.getElementById('mapImage');
-      if (mapImg) {
-        mapImg.src = '/images/MAPToriCafe.png';
-        mapImg.onerror = () => {
-          console.log('[v0] Map image not found, using placeholder');
-        };
-      }
-    }, 300);
-
+    // Load map image removed (using static src now)
+    
     // Add real-time email validation
     document.getElementById('custEmail').addEventListener('blur', () => {
       const emailInput = document.getElementById('custEmail');
