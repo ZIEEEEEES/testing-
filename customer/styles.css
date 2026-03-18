@@ -1803,6 +1803,31 @@ h1 {
   /* Updated to accommodate wider drawer */
 }
 
+/* Desktop: avoid "floating" cart button over content */
+@media (min-width: 1025px) {
+  .order-drawer-btn {
+    top: auto;
+    bottom: 24px;
+    right: 24px;
+    transform: none;
+    border-radius: 999px;
+    width: 56px;
+    height: 56px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  .order-drawer-btn:hover {
+    width: 56px;
+  }
+
+  /* When drawer is open, hide the floating button (drawer already has close X) */
+  .order-drawer-btn.active {
+    right: 24px;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
 /* --- MODERN SHOPPING CART (ORDER DRAWER) --- */
 .order-drawer {
   position: fixed;

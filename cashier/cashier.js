@@ -1761,9 +1761,9 @@ window.updateKioskStatus = async (orderId, status, btn = null) => {
           updatePayload.archived_at = new Date().toISOString()
       }
 
-      // Handle ACCEPTED status
-      if (normalizedStatus === 'accepted') {
-          updatePayload.status = 'accepted'
+      // Handle "accept" semantics (accepted/preparing)
+      if (normalizedStatus === 'accepted' || normalizedStatus === 'preparing') {
+          updatePayload.status = normalizedStatus
           // Notify customer
           await upsertCustomerNotification({
               customerId: orderData.customer_id,
@@ -2135,14 +2135,15 @@ function createOrderCard(order) {
         }
     })()
 
-    if (isInsufficientOrder) {
+        if (isInsufficientOrder) {
         if (order.second_payment_status === 'pending_verification') {
             const btnAccept = document.createElement("button")
             btnAccept.className = "btn-action"
             btnAccept.style.backgroundColor = "#5cb85c"
             btnAccept.style.color = "white"
             btnAccept.textContent = "Accept & Verify"
-            btnAccept.onclick = () => window.updateKioskStatus(order.id, 'ACCEPTED', btnAccept)
+            // Move to kitchen (preparing) after verifying online repayment
+            btnAccept.onclick = () => window.updateKioskStatus(order.id, 'preparing', btnAccept)
             actionsContainer.appendChild(btnAccept)
             
             const btnView = document.createElement("button")
@@ -2158,7 +2159,7 @@ function createOrderCard(order) {
             btnLoad.onclick = () => window.loadPendingOrder(order.id, btnLoad)
             actionsContainer.appendChild(btnLoad)
         }
-    } else if (order.status === 'pending' || order.status === 'ACCEPTED' || order.status === 'preparing' || order.status === 'ready') {
+        } else if (order.status === 'pending' || order.status === 'ACCEPTED' || order.status === 'accepted' || order.status === 'preparing' || order.status === 'ready') {
         if (order.payment_method === 'online') {
             // ACCEPT Button
             const btnAccept = document.createElement("button")
@@ -2167,7 +2168,8 @@ function createOrderCard(order) {
             btnAccept.style.color = "white"
             btnAccept.textContent = "ACCEPT"
             btnAccept.style.fontWeight = "bold"
-            btnAccept.onclick = () => window.updateKioskStatus(order.id, 'ACCEPTED', btnAccept)
+            // Accept online payment then send to kitchen (removes from Online column)
+            btnAccept.onclick = () => window.updateKioskStatus(order.id, 'preparing', btnAccept)
             actionsContainer.appendChild(btnAccept)
 
             // INSUFFICIENT AMT Button
@@ -2194,7 +2196,7 @@ function createOrderCard(order) {
             btnReject.style.marginLeft = "5px"
             btnReject.textContent = "REJECT"
             btnReject.style.fontWeight = "bold"
-            btnReject.onclick = () => window.updateKioskStatus(order.id, 'REJECTED', btnReject)
+            btnReject.onclick = () => window.updateKioskStatus(order.id, 'rejected', btnReject)
             actionsContainer.appendChild(btnReject)
         } else {
             // Cash flow
@@ -2707,7 +2709,7 @@ function createPreorderCard(booking) {
     if (isInsufficient) {
         if (booking.second_payment_status === 'pending_verification') {
             buttons = `
-                <button onclick="window.updatePreorderStatus('${booking.id}', 'ACCEPTED', this)" class="btn-action" style="background-color: #5cb85c; color: white; flex: 1; padding: 10px;">Accept & Verify</button>
+                <button onclick="window.updatePreorderStatus('${booking.id}', 'preparing', this)" class="btn-action" style="background-color: #5cb85c; color: white; flex: 1; padding: 10px;">Accept & Verify</button>
                 <button onclick="window.verifySecondPayment('${booking.id}', 'bookings', this)" class="btn-action" style="background-color: #1976D2; color: white; margin-left: 5px; flex: 1; padding: 10px;">🔍 View Receipt</button>
             `
         } else {
@@ -2717,12 +2719,12 @@ function createPreorderCard(booking) {
         }
     } else if (booking.status === "pending") {
         const isOnline = booking.payment_method === "online"
-        const acceptBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'ACCEPTED', this)" class="btn-action" style="background-color: #5cb85c; color: white; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">ACCEPT</button>`
+        const acceptBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'preparing', this)" class="btn-action" style="background-color: #5cb85c; color: white; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">ACCEPT</button>`
         const loadBtn = !isOnline ? `<button onclick="window.loadPreorderToPOS('${booking.id}', this)" class="btn-action" style="background-color: #8BC34A; color: white; margin-left: 5px; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">LOAD TO POS</button>` : ""
         const insufficientBtn = isOnline
             ? `<button onclick="window.openInsufficientPreorderModalById('${booking.id}', this)" class="btn-action" style="background-color: #d39e00; color: white; margin-left: 5px; flex: 1.2; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px; line-height: 1.1;">⚠️ INSUFFICIENT<br>AMT</button>`
             : ""
-        const rejectBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'REJECTED', this)" class="btn-action" style="background-color: #d9534f !important; color: white !important; margin-left:5px; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">REJECT</button>`
+        const rejectBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'rejected', this)" class="btn-action" style="background-color: #d9534f !important; color: white !important; margin-left:5px; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">REJECT</button>`
         
         buttons = `
             <div style="display: flex; gap: 5px; width: 100%; align-items: stretch;">
@@ -2735,9 +2737,9 @@ function createPreorderCard(booking) {
     } else if (booking.status === "ACCEPTED" || booking.status === "accepted" || booking.status === "preparing" || booking.status === "ready") {
         if (booking.payment_method === "online") {
             // User requested to replace Complete/Print with Accept/Insufficient/Reject for all online pre-orders
-            const acceptBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'ACCEPTED', this)" class="btn-action" style="background-color: #5cb85c; color: white; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">ACCEPT</button>`
+            const acceptBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'preparing', this)" class="btn-action" style="background-color: #5cb85c; color: white; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">ACCEPT</button>`
             const insufficientBtn = `<button onclick="window.openInsufficientPreorderModalById('${booking.id}', this)" class="btn-action" style="background-color: #d39e00; color: white; margin-left: 5px; flex: 1.2; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px; line-height: 1.1;">⚠️ INSUFFICIENT<br>AMT</button>`
-            const rejectBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'REJECTED', this)" class="btn-action" style="background-color: #d9534f !important; color: white !important; margin-left:5px; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">REJECT</button>`
+            const rejectBtn = `<button onclick="window.updatePreorderStatus('${booking.id}', 'rejected', this)" class="btn-action" style="background-color: #d9534f !important; color: white !important; margin-left:5px; flex: 1; padding: 10px; font-weight: bold; font-size: 14px; border-radius: 8px;">REJECT</button>`
             
             buttons = `
                 <div style="display: flex; gap: 5px; width: 100%; align-items: stretch;">
@@ -2822,9 +2824,10 @@ window.updatePreorderStatus = async (id, status, btn = null) => {
             payload.archived_at = new Date().toISOString()
         }
 
-        // Handle ACCEPTED status
-        if (normalizedStatus === 'accepted') {
-            payload.status = 'accepted'
+        // Handle "accept" semantics (accepted/preparing)
+        if (normalizedStatus === 'accepted' || normalizedStatus === 'preparing') {
+            // For cashier board: moving to "preparing" removes it from cashier lists (kitchen handles next steps)
+            payload.status = (normalizedStatus === 'preparing') ? 'preparing' : 'accepted'
             // Notify customer
             await upsertCustomerNotification({
                 customerId: bookingData.customer_id,
