@@ -1634,6 +1634,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function openPreorderModal() {
     const modal = document.getElementById("preorderModal")
     if (modal) {
+        // If user came from the preorder basket, close it so the modal is visible
+        if (typeof closePreorderDrawer === "function") closePreorderDrawer()
+        if (typeof closeOrderDrawer === "function") closeOrderDrawer()
         modal.style.display = "flex"
         // Reset to menu view every time it opens
         showPreorderMenuView()
@@ -2346,7 +2349,9 @@ function submitBooking() {
         items,
         total,
         date,
-        time: isPreorder ? pickupTime : `${checkIn}-${checkOut}`,
+        // IMPORTANT: do not store "HH:MM-HH:MM" in a TIME/TIMETZ column (Postgres parses it like a timezone offset)
+        // For visits we store the start time in `time` and the full window in `check_in_time`/`check_out_time`.
+        time: isPreorder ? pickupTime : (checkIn || null),
         check_in_time: isPreorder ? null : checkIn,
         check_out_time: isPreorder ? null : checkOut,
         pickup_time: isPreorder ? pickupTime : null,
@@ -3403,6 +3408,10 @@ window.openPaymentModal = () => {
         return
     }
     
+    // If user clicked Checkout, close any open baskets/drawers
+    if (typeof closeOrderDrawer === "function") closeOrderDrawer()
+    if (typeof closePreorderDrawer === "function") closePreorderDrawer()
+
     const modal = document.getElementById("paymentModal")
     if (modal) modal.style.display = "flex"
     
@@ -4155,7 +4164,9 @@ async function runTrackOrder() {
             const tsDate = d.created_at || d.timestamp
             const ts = tsDate ? new Date(tsDate).toLocaleString() : ""
             const date = d.date || ""
-            const time = d.time || ""
+            const time = (d.type === "preorder")
+              ? (d.pickup_time || d.time || "")
+              : ((d.check_in_time && d.check_out_time) ? `${d.check_in_time} - ${d.check_out_time}` : (d.time || ""))
             const type = d.type === "preorder" ? "Pre-order" : "Visit"
             
             // Point 5: Check for reschedule
@@ -4163,7 +4174,11 @@ async function runTrackOrder() {
             let rescheduleNotice = ""
             if (log || d.rescheduled) {
                 const newDate = log ? log.new_date : d.date
-                const newTime = log ? log.new_time : d.time
+                const newTime = log
+                  ? log.new_time
+                  : ((d.type === "preorder")
+                      ? (d.pickup_time || d.time)
+                      : ((d.check_in_time && d.check_out_time) ? `${d.check_in_time} - ${d.check_out_time}` : d.time))
                 rescheduleNotice = `<div style="margin-top: 8px; padding: 8px; background: #e3f2fd; border: 1px solid #bbdefb; border-left: 4px solid #2196f3; border-radius: 4px; color: #0d47a1; font-size: 0.85em;">
                     <strong>Notice:</strong> Your booking has been rescheduled to <b>${newDate}</b> at <b>${newTime}</b>
                 </div>`
