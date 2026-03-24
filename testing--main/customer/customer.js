@@ -2949,15 +2949,15 @@ function loadPromos() {
         promoList.innerHTML = '<p style="text-align:center; color:#666;">No active promos/announcements at the moment.</p>'
         return
       }
-      const now = new Date()
-      const activePromos = (promos || []).filter((d) => {
-        if (!d) return false
-        const expDate = d.expiration_date || d.expires_at || d.expiry || d.ends_at
-        if (!expDate) return true
 
-        const exp = new Date(expDate)
-        if (isNaN(exp.getTime())) return true
-        return exp >= now
+      // Filter out expired promos
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const activePromos = promos.filter((p) => {
+        if (!p.valid_until) return true // No expiry date = always active
+        const expiryDate = new Date(p.valid_until)
+        expiryDate.setHours(23, 59, 59, 999)
+        return expiryDate >= today
       })
 
       if (activePromos.length === 0) {
@@ -2969,48 +2969,37 @@ function loadPromos() {
       activePromos.forEach((d) => {
         const card = document.createElement("div")
         card.className = "promo-card"
-
-        const posterUrl = d.poster_url || d.image_url || d.image || d.poster || d.banner_url
-        if (posterUrl) {
-          const poster = document.createElement("img")
-          poster.className = "promo-poster"
-          poster.src = posterUrl
-          poster.alt = d.title ? `${d.title} poster` : "Promo poster"
-          card.appendChild(poster)
+        
+        // Add image if available
+        if (d.poster_image_url) {
+          const img = document.createElement("img")
+          img.src = d.poster_image_url
+          img.className = "promo-poster"
+          img.style.width = "100%"
+          img.style.borderRadius = "12px"
+          img.style.marginBottom = "15px"
+          card.appendChild(img)
         }
 
         const title = document.createElement("h3")
         title.className = "promo-title"
         title.textContent = d.title || "Untitled Promo"
-
+        
         const content = document.createElement("div")
         content.className = "promo-content"
         // Preserve newlines
         content.innerHTML = (d.content || "").replace(/\n/g, "<br>")
-
+        
         const date = document.createElement("div")
         date.className = "promo-date"
-        const createdAt = d.created_at || d.createdAt || d.created_at
-        if (createdAt) {
-          date.textContent = `Posted: ${new Date(createdAt).toLocaleDateString()}`
+        if (d.created_at) {
+            date.textContent = new Date(d.created_at).toLocaleDateString()
         }
-
-        const expiresAt = d.expiration_date || d.expires_at || d.expiry || d.ends_at
-        if (expiresAt) {
-          const exp = new Date(expiresAt)
-          if (!isNaN(exp.getTime())) {
-            const expires = document.createElement("div")
-            expires.className = "promo-expiration"
-            expires.textContent = `Expires: ${exp.toLocaleDateString()}`
-            card.appendChild(expires)
-          }
-        }
-
+        
         card.appendChild(title)
         card.appendChild(content)
         card.appendChild(date)
         promoList.appendChild(card)
-
       })
     })
     .catch((err) => {

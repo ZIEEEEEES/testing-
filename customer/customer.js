@@ -2949,11 +2949,38 @@ function loadPromos() {
         promoList.innerHTML = '<p style="text-align:center; color:#666;">No active promos/announcements at the moment.</p>'
         return
       }
+
+      // Filter out expired promos
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const activePromos = promos.filter((p) => {
+        if (!p.valid_until) return true // No expiry date = always active
+        const expiryDate = new Date(p.valid_until)
+        expiryDate.setHours(23, 59, 59, 999)
+        return expiryDate >= today
+      })
+
+      if (activePromos.length === 0) {
+        promoList.innerHTML = '<p style="text-align:center; color:#666;">No active promos/announcements at the moment.</p>'
+        return
+      }
+
       promoList.innerHTML = ""
-      promos.forEach((d) => {
+      activePromos.forEach((d) => {
         const card = document.createElement("div")
         card.className = "promo-card"
         
+        // Add image if available
+        if (d.poster_image_url) {
+          const img = document.createElement("img")
+          img.src = d.poster_image_url
+          img.className = "promo-poster"
+          img.style.width = "100%"
+          img.style.borderRadius = "12px"
+          img.style.marginBottom = "15px"
+          card.appendChild(img)
+        }
+
         const title = document.createElement("h3")
         title.className = "promo-title"
         title.textContent = d.title || "Untitled Promo"

@@ -1881,3 +1881,4 @@ td:last-child {
   background: #fff3cd;
   border: 1px solid #f0d58a;
 }
+#promoTable td:last-child { text-align: right; }

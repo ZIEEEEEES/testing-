@@ -330,6 +330,17 @@
             <label for="promoContent">Promo Details:</label>
             <textarea id="promoContent" placeholder="Enter promo details..." rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
         </div>
+        <div class="form-group" style="margin-top: 10px;">
+            <label for="promoImage">Promo Poster:</label>
+            <input type="file" id="promoImage" accept="image/*" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" onchange="previewPromoImage(this)">
+            <div class="preview-box" style="margin-top: 10px; border: 2px dashed #ddd; padding: 10px; text-align: center; border-radius: 8px; min-height: 150px; display: flex; align-items: center; justify-content: center;">
+                <img id="promoImagePreview" src="" alt="Image Preview" style="max-width: 100%; display: none; border-radius: 8px;">
+                <div id="promoImagePlaceholder" style="color: #888; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span style="font-size: 24px;">📷</span>
+                    <span style="font-weight: 600;">No Image Uploaded</span>
+                </div>
+            </div>
+        </div>
         <div class="form-actions" style="margin-top: 10px;">
             <button id="addPromoBtn" class="btn-primary">Add Promo</button>
             <button id="updatePromoBtn" class="btn-secondary" style="display:none">Update Promo</button>
@@ -341,6 +352,7 @@
     <table id="promoTable">
       <thead>
         <tr>
+          <th>Image</th>
           <th>Title</th>
           <th>Details</th>
           <th>Valid Until</th>

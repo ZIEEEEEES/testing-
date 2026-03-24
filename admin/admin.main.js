@@ -1454,13 +1454,15 @@ window.loadPromos = async function() {
     })
 
     if (activePromos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3">No active promos found.</td></tr>'
+      tbody.innerHTML = '<tr><td colspan="5">No active promos found.</td></tr>'
       return
     }
 
     activePromos.forEach((p) => {
       const tr = document.createElement("tr")
+      const imgHtml = p.poster_image_url ? `<img src="${p.poster_image_url}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">` : "No Image"
       tr.innerHTML = `
+        <td>${imgHtml}</td>
         <td>${p.title || "Untitled"}</td>
         <td>${p.content || ""}</td>
         <td>${p.valid_until || "No Expiry"}</td>
@@ -1485,6 +1487,17 @@ window.editPromo = async function(id) {
         document.getElementById("promoTitle").value = data.title || ""
         document.getElementById("promoContent").value = data.content || ""
         document.getElementById("promoUntil").value = data.valid_until || ""
+        
+        const previewImg = document.getElementById("promoImagePreview")
+        const noImg = document.getElementById("promoImagePlaceholder")
+        if (data.poster_image_url) {
+            previewImg.src = data.poster_image_url
+            previewImg.style.display = "block"
+            noImg.style.display = "none"
+        } else {
+            previewImg.style.display = "none"
+            noImg.style.display = "flex"
+        }
         
         // Set min date to today
         const now = new Date()
@@ -1523,6 +1536,9 @@ function resetPromoForm() {
     document.getElementById("promoTitle").value = ""
     document.getElementById("promoContent").value = ""
     document.getElementById("promoUntil").value = ""
+    document.getElementById("promoImage").value = ""
+    document.getElementById("promoImagePreview").style.display = "none"
+    document.getElementById("promoImagePlaceholder").style.display = "flex"
     
     // Set min date to today
     const now = new Date()
@@ -1533,6 +1549,25 @@ function resetPromoForm() {
     document.getElementById("addPromoBtn").style.display = "inline-block"
     document.getElementById("updatePromoBtn").style.display = "none"
     document.getElementById("cancelPromoBtn").style.display = "none"
+}
+
+window.previewPromoImage = (input) => {
+  const file = input.files[0]
+  const previewImg = document.getElementById("promoImagePreview")
+  const noImg = document.getElementById("promoImagePlaceholder")
+
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      previewImg.src = e.target.result
+      previewImg.style.display = "block"
+      noImg.style.display = "none"
+    }
+    reader.readAsDataURL(file)
+  } else {
+    previewImg.style.display = "none"
+    noImg.style.display = "flex"
+  }
 }
 
 // Promo Event Listeners
@@ -1560,7 +1595,30 @@ document.addEventListener("DOMContentLoaded", () => {
             addBtn.textContent = "Adding..."
             
             try {
-                const { error } = await db.from("promos").insert([{ title, content, valid_until: valid_until || null }])
+                let poster_image_url = null
+                const photoFile = document.getElementById("promoImage").files[0]
+                
+                if (photoFile) {
+                    const timestamp = Date.now()
+                    const sanitizedTitle = title.replace(/[^a-z0-9]/gi, "_").toLowerCase()
+                    const fileName = `promo_${sanitizedTitle}_${timestamp}`
+                    
+                    const { data, error: uploadError } = await db.storage.from('product-photos').upload(fileName, photoFile)
+                    if (uploadError) {
+                        console.warn("Storage upload failed for promo, trying Base64 fallback:", uploadError)
+                        poster_image_url = await resizeImage(photoFile, 800, 0.7)
+                    } else {
+                        const { data: { publicUrl } } = db.storage.from('product-photos').getPublicUrl(fileName)
+                        poster_image_url = publicUrl
+                    }
+                }
+
+                const { error } = await db.from("promos").insert([{ 
+                    title, 
+                    content, 
+                    valid_until: valid_until || null,
+                    poster_image_url: poster_image_url
+                }])
                 if (error) throw error
                 if (window.logAdminAction) await logAdminAction('Added promo', title)
                 showMessage("Promo added successfully", "success")
@@ -1598,7 +1656,28 @@ document.addEventListener("DOMContentLoaded", () => {
             updateBtn.textContent = "Updating..."
             
             try {
-                const { error } = await db.from("promos").update({ title, content, valid_until: valid_until || null }).eq("id", id)
+                let poster_image_url = null
+                const photoFile = document.getElementById("promoImage").files[0]
+                
+                if (photoFile) {
+                    const timestamp = Date.now()
+                    const sanitizedTitle = title.replace(/[^a-z0-9]/gi, "_").toLowerCase()
+                    const fileName = `promo_${sanitizedTitle}_${timestamp}`
+                    
+                    const { data, error: uploadError } = await db.storage.from('product-photos').upload(fileName, photoFile)
+                    if (uploadError) {
+                        console.warn("Storage upload failed for promo, trying Base64 fallback:", uploadError)
+                        poster_image_url = await resizeImage(photoFile, 800, 0.7)
+                    } else {
+                        const { data: { publicUrl } } = db.storage.from('product-photos').getPublicUrl(fileName)
+                        poster_image_url = publicUrl
+                    }
+                }
+
+                const updateData = { title, content, valid_until: valid_until || null }
+                if (poster_image_url) updateData.poster_image_url = poster_image_url
+
+                const { error } = await db.from("promos").update(updateData).eq("id", id)
                 if (error) throw error
                 if (window.logAdminAction) await logAdminAction('Updated promo', title)
                 showMessage("Promo updated successfully", "success")
